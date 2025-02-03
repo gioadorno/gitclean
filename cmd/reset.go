@@ -52,7 +52,7 @@ func reset(cmd *cobra.Command, args []string) error {
 	}
 	exec.Command("git", "add", filePath).Output()
 
-	// 4. Commit the changes with the combined message
+	// 4. Commit the changes
 	commitCmd := exec.Command("git", "commit", "-a", "-m", commitMsg)
 	commitOutput, err := commitCmd.CombinedOutput()
 	if err != nil {
