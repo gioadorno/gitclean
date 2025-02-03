@@ -57,7 +57,7 @@ func rebase(cmd *cobra.Command, args []string) error {
 
 	fmt.Printf("Starting rebase onto %s...\n", branch)
 	// 3. Perform the rebase (if changes exist)
-	rebaseCmd := exec.Command("git", "rebase", "--continue", branch)
+	rebaseCmd := exec.Command("git", "rebase", branch)
 	rebaseOutput, err := rebaseCmd.CombinedOutput()
 	if err != nil {
 		fmt.Printf("Rebase failed:\n%s\n", string(rebaseOutput))
