@@ -43,7 +43,7 @@ func reset(cmd *cobra.Command, args []string) error {
 	commitMsg, _ := reader.ReadString('\n')
 	commitMsg = strings.TrimSpace(commitMsg)
 
-	// 3. Prompt the user for a commit message
+	// 3. Prompt the user to add file(s) or path
 	fmt.Print("Git file(s) or path to add. Default is '.': ")
 	filePath, _ := reader.ReadString('\n')
 	filePath = strings.TrimSpace(filePath)
