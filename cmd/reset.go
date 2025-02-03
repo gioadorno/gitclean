@@ -43,7 +43,7 @@ func reset(cmd *cobra.Command, args []string) error {
 	commitMsg, _ := reader.ReadString('\n')
 	commitMsg = strings.TrimSpace(commitMsg)
 
-	// 3. Prompt the user to add file(s) or path
+	// 4. Prompt the user to add file(s) or path
 	fmt.Print("Git file(s) or path to add. Default is '.': ")
 	filePath, _ := reader.ReadString('\n')
 	filePath = strings.TrimSpace(filePath)
@@ -52,7 +52,7 @@ func reset(cmd *cobra.Command, args []string) error {
 	}
 	exec.Command("git", "add", filePath).Output()
 
-	// 4. Commit the changes
+	// 5. Commit the changes
 	commitCmd := exec.Command("git", "commit", "-a", "-m", commitMsg)
 	commitOutput, err := commitCmd.CombinedOutput()
 	if err != nil {
@@ -61,7 +61,7 @@ func reset(cmd *cobra.Command, args []string) error {
 	}
 	fmt.Println("Commit complete.")
 
-	// 5. Push to the HEAD branch
+	// 6. Push to the HEAD branch
 	fmt.Println("Pushing...")
 	pushCmd := exec.Command("git", "push", "--force-with-lease", "origin", "HEAD")
 	pushOutput, err := pushCmd.CombinedOutput()
