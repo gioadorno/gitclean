@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"os/exec"
-
 	"github.com/spf13/cobra"
 )
 
@@ -13,19 +11,9 @@ var rootCmd = &cobra.Command{
 }
 
 func Execute() error {
-	rebaseCmd := &cobra.Command{
-		Use:   "rebase",
-		Short: "Rebase with Master",
-		Long:  "Checks if Master branch has any changes, then pulls those changes to Master, and rebase Master with current branch. Outputs if there are any conflicts. If there are no conflicts then asks the user if they want to push to current branch.",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			// Check if there are changes in Master
-			_, err := exec.Command("git status --porcelain origin/master").Output()
-			if err != nil {
-				return err
-			}
-			return nil
-		},
-	}
+	rebaseCmd.Flags().StringP("branch", "b", "origin/master", "Branch to rebase")
+
 	rootCmd.AddCommand(rebaseCmd)
+	rootCmd.AddCommand(resetCmd)
 	return rootCmd.Execute()
 }
