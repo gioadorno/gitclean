@@ -48,7 +48,7 @@ func rebase(cmd *cobra.Command, args []string) error {
 	}
 
 	if len(logOutput) == 0 {
-		fmt.Printf("There are no new changes on %s\n", branch)
+		fmt.Printf("There are no new changes on %s branch\n", branch)
 		return nil
 	}
 
