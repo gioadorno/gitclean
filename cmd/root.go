@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os/exec"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -29,40 +30,13 @@ func Execute() error {
 func rebase(cmd *cobra.Command, args []string) error {
 	branch, _ := cmd.Flags().GetString("branch")
 
-	// Check if there are changes in Master
-	fmt.Printf("Fetching latest changes from origin...\n")
-	_, err := exec.Command("git", "fetch", branch).Output()
-	if err != nil {
-		return err
-	}
-	fmt.Println("Fetch complete.")
-
-	fmt.Printf("Checking for changes on %s...\n", branch)
-	// 2. Check for changes on the target branch
-	logCmd := exec.Command("git", "log", fmt.Sprintf("HEAD..%s", branch))
-	logOutput, err := logCmd.Output()
-	if err != nil {
-		// Handle the case where git log fails (e.g., branch doesn't exist)
-		if strings.Contains(err.Error(), "unknown revision") {
-			return fmt.Errorf("branch %s not found", branch)
-		}
-		return fmt.Errorf("failed to check for changes: %w", err)
-	}
-
-	if len(logOutput) == 0 {
-		fmt.Printf("There are no new changes on %s branch\n", branch)
-		return nil
-	}
-	fmt.Printf("Changes found on %s:\n%s\n", branch, string(logOutput))
-
 	fmt.Printf("Starting rebase onto %s...\n", branch)
-	// 3. Perform the rebase (if changes exist)
-	rebaseCmd := exec.Command("git", "rebase", branch)
+	rebaseCmd := exec.Command("git", "rebase", "--soft", branch)
 	rebaseOutput, err := rebaseCmd.CombinedOutput()
 	if err != nil {
 		fmt.Printf("Rebase failed:\n%s\n", string(rebaseOutput))
 
-		// Check for conflicts:
+		fmt.Println("Checking for conflicts...")
 		diffCmd := exec.Command("git", "diff", "--name-only", "--conflicts")
 		conflictFiles, err := diffCmd.Output()
 		if err != nil {
@@ -73,25 +47,37 @@ func rebase(cmd *cobra.Command, args []string) error {
 			fmt.Printf("Conflicts found in the following files:\n%s\n", string(conflictFiles))
 			return fmt.Errorf("rebase failed due to conflicts")
 		} else {
-			return fmt.Errorf("rebase failed (unknown reason)") // Rebase failed, but no conflicts detected.
+			return fmt.Errorf("rebase failed (unknown reason)")
 		}
 
 	}
 
-	fmt.Printf("Rebase successful:\n%s\n", string(rebaseOutput))
+	fmt.Println("Rebase successful.")
 
 	fmt.Println("Resetting to prepare for single commit...")
-	// 4. Reset soft and check for single commit
-	resetCmd := exec.Command("git", "reset", "--soft", "HEAD~1") // Reset to the commit before the rebase
+	resetCmd := exec.Command("git", "reset", "--soft", "HEAD~1")
 	resetOutput, err := resetCmd.CombinedOutput()
 	if err != nil {
 		fmt.Printf("Reset failed:\n%s\n", string(resetOutput))
 		return fmt.Errorf("reset failed: %w", err)
 	}
-	fmt.Printf("Reset successful:\n%s\n", string(resetOutput))
+	fmt.Println("Reset complete.")
+
+	fmt.Println("Checking for single commit...")
+	commitCountCmd := exec.Command("git", "rev-list", "--count", "HEAD")
+	commitCountOutput, err := commitCountCmd.Output()
+	if err != nil {
+		return fmt.Errorf("failed to count commits: %w", err)
+	}
+
+	commitCount := strings.TrimSpace(string(commitCountOutput))
+	if commitCount != "1" {
+		fmt.Printf("Branch does not have a single commit after reset. Commit count: %s\n", commitCount)
+		return fmt.Errorf("branch is not in a single commit state. Please squash your commits before pushing")
+	}
+	fmt.Println("Single commit check passed.")
 
 	fmt.Println("Force pushing changes...")
-	// 5. Force push if no conflicts
 	pushCmd := exec.Command("git", "push", "--force-with-lease", "origin", "HEAD")
 	pushOutput, err := pushCmd.CombinedOutput()
 	if err != nil {
@@ -99,7 +85,7 @@ func rebase(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("force push failed: %w", err)
 	}
 
-	fmt.Printf("Force push successful:\n%s\n", string(pushOutput))
+	fmt.Println("Force push successful.")
 
 	return nil
 }
