@@ -3,8 +3,8 @@
 An easy to use tool for rebasing and cleaning up branches
 
 ### Commands
-Rebase
-Reset
+- Rebase
+- Reset
 
 #### Flags
 -b, -branch - When doing a rebase, you can add the -b flag to tell git which branch you want to rebase. Default value is origin/master
