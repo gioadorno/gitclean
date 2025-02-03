@@ -19,7 +19,7 @@ var resetCmd = &cobra.Command{
 
 func reset(cmd *cobra.Command, args []string) error {
 	// 1. Find the Parent's last commit
-	fmt.Println("Squashing commits...")
+	fmt.Println("Fetching parent's last commit...")
 	firstCommitCmd := exec.Command("git", "rev-list", "--max-parents=0", "HEAD")
 	firstCommitOutput, err := firstCommitCmd.Output()
 	if err != nil {
