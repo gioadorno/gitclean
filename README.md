@@ -3,7 +3,7 @@
 An easy to use tool for rebasing and cleaning up branches
 
 ### Commands
-- Rebase
+- Rebase (Fetches the input branch (or default origin/master), rebases with HEAD, force push to HEAD)
 - Reset
 
 #### Flags
