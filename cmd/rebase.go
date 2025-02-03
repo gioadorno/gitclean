@@ -10,15 +10,15 @@ import (
 
 var rebaseCmd = &cobra.Command{
 	Use:   "rebase",
-	Short: "Rebase with Master",
-	Long:  "Checks if Master branch has any changes, then pulls those changes to Master, and rebase Master with current branch. Outputs if there are any conflicts. If there are no conflicts then asks the user if they want to push to current branch.",
+	Short: "Rebase with input branch",
+	Long:  "Checks if input branch has any changes, then pulls those changes to HEAD, and rebase Master with HEAD. Outputs if there are any conflicts. If there are no conflicts then asks the user if they want to push to current branch.",
 	RunE:  rebase,
 }
 
 func rebase(cmd *cobra.Command, args []string) error {
 	branch, _ := cmd.Flags().GetString("branch")
 
-	// Check if there are changes in Master
+	// 1. Fetch input branch or default origin/master
 	fmt.Printf("Fetching latest changes from origin...\n")
 	_, err := exec.Command("git", "fetch", branch).Output()
 	if err != nil {
