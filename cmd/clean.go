@@ -15,17 +15,18 @@ var cleanCmd = &cobra.Command{
 }
 
 func clean(cmd *cobra.Command, args []string) error {
+	resetErr := reset(cmd, args)
+	if resetErr != nil {
+		fmt.Printf("There was an error attempting to reset branch: %v", resetErr)
+		os.Exit(1)
+	}
+
 	err := rebase(cmd, args)
 	if err != nil {
 		fmt.Printf("There was an error attempting to rebase: %v", err)
 		os.Exit(1)
 	}
 
-	resetErr := reset(cmd, args)
-	if resetErr != nil {
-		fmt.Printf("There was an error attempting to reset branch: %v", err)
-		os.Exit(1)
-	}
 	fmt.Println("Clean successful.")
 	return nil
 }

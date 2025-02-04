@@ -69,7 +69,7 @@ func reset(cmd *cobra.Command, args []string) error {
 		fmt.Printf("Push failed:\n%s\n", string(pushOutput))
 		return fmt.Errorf("push failed: %w", err)
 	}
-	fmt.Println("Branch is cleaned and pushed.")
+	fmt.Println("Branch is cleaned and updated.")
 
 	return nil
 }

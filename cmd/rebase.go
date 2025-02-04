@@ -60,7 +60,7 @@ func rebase(cmd *cobra.Command, args []string) error {
 		}
 		defer term.Restore(int(os.Stdin.Fd()), oldState)
 
-		var input []byte = make([]byte, 1)
+		var input = make([]byte, 1)
 		_, err = os.Stdin.Read(input)
 		if err != nil {
 			panic(err)
@@ -84,8 +84,6 @@ func rebase(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	fmt.Printf("Rebase successful:\n%s\n", string(rebaseOutput))
-
 	// 4. Force Push
 	fmt.Println("Force pushing changes...")
 	pushCmd := exec.Command("git", "push", "--force-with-lease", "origin", "HEAD")
@@ -96,6 +94,5 @@ func rebase(cmd *cobra.Command, args []string) error {
 	}
 	fmt.Printf("Force push successful:\n%s\n", string(pushOutput))
 
-	// test223
 	return nil
 }

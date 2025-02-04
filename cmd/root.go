@@ -12,7 +12,9 @@ var rootCmd = &cobra.Command{
 
 func Execute() error {
 	rebaseCmd.Flags().StringP("branch", "b", "origin/master", "Branch to rebase")
+	cleanCmd.Flags().StringP("branch", "b", "origin/master", "Branch to rebase")
 
+	rootCmd.AddCommand(cleanCmd)
 	rootCmd.AddCommand(rebaseCmd)
 	rootCmd.AddCommand(resetCmd)
 	return rootCmd.Execute()
