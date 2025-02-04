@@ -36,4 +36,11 @@ Initiate dashboard feature
 (left blank for default)
 ```
 ## Clean
+```
+gitclean clean
+```
+or
+```
+gitclean clean -b dashboard-feature
+```
 Does both the rebase and reset functionality
