@@ -52,42 +52,35 @@ func rebase(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		fmt.Printf("Rebase failed:\n%s\n", string(rebaseOutput))
 
-		for {
-			fmt.Print("Please resolve your conflicts. Press enter to continue or q to abort process: ")
+		fmt.Print("Please resolve your conflicts. Press enter to continue or q to abort process: ")
 
-			oldState, err := term.MakeRaw(int(os.Stdin.Fd()))
+		oldState, err := term.MakeRaw(int(os.Stdin.Fd()))
+		if err != nil {
+			panic(err)
+		}
+		defer term.Restore(int(os.Stdin.Fd()), oldState)
+
+		var input []byte = make([]byte, 1)
+		_, err = os.Stdin.Read(input)
+		if err != nil {
+			panic(err)
+		}
+
+		switch input[0] {
+		case '\r', '\n': // Enter key
+			fmt.Println("Continuing rebase...")
+		case 'q', 'Q':
+			fmt.Println()
+			fmt.Println("Aborting rebase...")
+			abortCmd := exec.Command("git", "rebase", "--abort")
+			abortOutput, err := abortCmd.CombinedOutput()
 			if err != nil {
-				panic(err)
+				return fmt.Errorf("failed to abort rebase: %w", err)
 			}
-			defer term.Restore(int(os.Stdin.Fd()), oldState)
-
-			var input []byte = make([]byte, 1)
-			_, err = os.Stdin.Read(input)
-			if err != nil {
-				panic(err)
-			}
-
-			switch input[0] {
-			case '\r', '\n': // Enter key
-				fmt.Println("Continuing rebase...")
-				// continueCmd := exec.Command("git", "rebase", "--continue")
-				// continueOutput, err := continueCmd.CombinedOutput()
-				// 	fmt.Printf("Failed to continue rebase: %v\nOutput: %s\n", err, continueOutput)
-				// }
-				continue
-			case 'q', 'Q':
-				fmt.Println()
-				fmt.Println("Aborting rebase...")
-				abortCmd := exec.Command("git", "rebase", "--abort")
-				abortOutput, err := abortCmd.CombinedOutput()
-				if err != nil {
-					return fmt.Errorf("failed to abort rebase: %w", err)
-				}
-				fmt.Printf("Rebase abort output: %s\n", abortOutput)
-				return nil
-			default:
-				fmt.Print("Invalid input. Please press Enter or q: ")
-			}
+			fmt.Printf("Rebase abort output: %s\n", abortOutput)
+			return nil
+		default:
+			fmt.Print("Invalid input. Please press Enter or q: ")
 		}
 	}
 
@@ -103,6 +96,6 @@ func rebase(cmd *cobra.Command, args []string) error {
 	}
 	fmt.Printf("Force push successful:\n%s\n", string(pushOutput))
 
-	// test
+	// test223
 	return nil
 }
