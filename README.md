@@ -1,6 +1,6 @@
 # GitClean
 
-An easy to use tool for rebasing and cleaning up branches
+Tool for rebasing and cleaning up branches
 
 ### Commands
 - Clean (Rebase and Reset)
@@ -11,7 +11,7 @@ An easy to use tool for rebasing and cleaning up branches
 (Optional) -b, -branch - When doing a rebase, you can add the -b flag to tell git which branch you want to rebase. Default value is origin/master
 
 ## Rebase
-This will fetch the requested branch (default is origin/master) to retrieve the updated changes. Then it will log out any changes that have been made. If there are no changes GitClean will exit, since there is no rebase to be had. Otherwise it will continue to perform a rebase. If there are conflicts, you will have to manually resolve those. Gitclean will let you know to press Enter to continue if all conflicts or resolved or press q to abort the process.
+This will fetch the requested branch (default is origin/master) to retrieve the updated changes. Then it will log out any changes/conflicts that have been made. If there are no changes GitClean will exit, since there is no rebase to be had. Otherwise it will continue to perform a rebase. If there are conflicts, you will have to manually resolve those. Gitclean will let prompt you to press Enter to continue if all conflicts or resolved or press q to abort the process.
 
 ##### Example
 ```
@@ -43,4 +43,4 @@ or
 ```
 gitclean clean -b dashboard-feature
 ```
-Does both the rebase and reset functionality
+Performs both Rebase and Reset
