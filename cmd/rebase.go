@@ -2,12 +2,10 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"os/exec"
 	"strings"
 
 	"github.com/spf13/cobra"
-	"golang.org/x/term"
 )
 
 var rebaseCmd = &cobra.Command{
@@ -43,16 +41,17 @@ func rebase(cmd *cobra.Command, args []string) error {
 		fmt.Printf("There are no new changes on %s branch\n", branch)
 		return nil
 	}
+	fmt.Printf("Changes found on %s:\n%s\n", branch, string(logOutput))
 
 	// 3. Perform the rebase (if changes exist)
 	fmt.Printf("Starting rebase onto %s...\n", branch)
-	rebaseCmd := exec.Command("git", "rebase", "--interactive", branch)
+	rebaseCmd := exec.Command("git", "rebase", branch)
 	rebaseOutput, err := rebaseCmd.CombinedOutput()
 	if err != nil {
-		fmt.Printf("Rebase failed:\n%s\n", string(rebaseOutput))
+		fmt.Printf("Rebase failed. Please rerun command when all conflicts are resolved: \n%s\n", string(rebaseOutput))
 
 		// Check for conflicts:
-		diffCmd := exec.Command("git", "diff", "--name-only", "--conflicts")
+		diffCmd := exec.Command("git", "diff")
 		conflictFiles, err := diffCmd.Output()
 		if err != nil {
 			return fmt.Errorf("failed to check for conflicts: %w", err)
@@ -60,45 +59,7 @@ func rebase(cmd *cobra.Command, args []string) error {
 
 		if len(conflictFiles) > 0 {
 			fmt.Printf("Conflicts found in the following files:\n%s\n", string(conflictFiles))
-			for {
-				fmt.Print("Please resolve your conflicts. Press enter to continue or q to abort process: ")
-
-				oldState, err := term.MakeRaw(int(os.Stdin.Fd()))
-				if err != nil {
-					panic(err)
-				}
-				defer term.Restore(int(os.Stdin.Fd()), oldState)
-
-				var input []byte = make([]byte, 1)
-				_, err = os.Stdin.Read(input)
-				if err != nil {
-					panic(err)
-				}
-
-				switch input[0] {
-				case '\r', '\n': // Enter key
-					fmt.Println("Continuing rebase...")
-					continueCmd := exec.Command("git", "rebase", "--continue")
-					continueOutput, err := continueCmd.CombinedOutput()
-					if err != nil {
-						fmt.Printf("Failed to continue rebase: %v\nOutput: %s\n", err, continueOutput)
-						return err
-					}
-					fmt.Printf("Rebase continue output: %s\n", continueOutput)
-				case 'q', 'Q':
-					fmt.Println()
-					fmt.Println("Aborting rebase...")
-					abortCmd := exec.Command("git", "rebase", "--abort")
-					abortOutput, err := abortCmd.CombinedOutput()
-					if err != nil {
-						return fmt.Errorf("failed to abort rebase: %w", err)
-					}
-					fmt.Printf("Rebase abort output: %s\n", abortOutput)
-					return nil
-				default:
-					fmt.Print("Invalid input. Please press Enter or q: ")
-				}
-			}
+			return fmt.Errorf("rebase failed due to conflicts")
 		} else {
 			return fmt.Errorf("rebase failed (unknown reason)")
 		}
@@ -116,6 +77,5 @@ func rebase(cmd *cobra.Command, args []string) error {
 	}
 	fmt.Printf("Force push successful:\n%s\n", string(pushOutput))
 
-	//test
 	return nil
 }
