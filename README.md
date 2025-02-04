@@ -36,4 +36,4 @@ Initiate dashboard feature
 (left blank for default)
 ```
 ## Clean
-Does both the rebase and clean functionality
+Does both the rebase and reset functionality
