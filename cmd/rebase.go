@@ -74,7 +74,6 @@ func rebase(cmd *cobra.Command, args []string) error {
 				// continueOutput, err := continueCmd.CombinedOutput()
 				// if err != nil {
 				// 	fmt.Printf("Failed to continue rebase: %v\nOutput: %s\n", err, continueOutput)
-				// 	return err
 				// }
 				continue
 			case 'q', 'Q':
