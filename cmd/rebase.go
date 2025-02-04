@@ -105,5 +105,6 @@ func rebase(cmd *cobra.Command, args []string) error {
 	}
 	fmt.Printf("Force push successful:\n%s\n", string(pushOutput))
 
+	// test
 	return nil
 }
