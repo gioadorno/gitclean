@@ -70,7 +70,6 @@ func rebase(cmd *cobra.Command, args []string) error {
 			switch input[0] {
 			case '\r', '\n': // Enter key
 				fmt.Println("Continuing rebase...")
-				// continueCmd := exec.Command("git", "rebase", "--continue")
 				// continueOutput, err := continueCmd.CombinedOutput()
 				// 	fmt.Printf("Failed to continue rebase: %v\nOutput: %s\n", err, continueOutput)
 				// }
