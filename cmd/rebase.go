@@ -69,46 +69,13 @@ func rebase(cmd *cobra.Command, args []string) error {
 		switch input[0] {
 		case '\r', '\n': // Enter key
 			fmt.Println("Continuing rebase...")
-			// continueOutput, err := continueCmd.CombinedOutput()
-			// if err != nil {
-			// 	fmt.Printf("Failed to continue rebase: %v\nOutput: %s\n", err, continueOutput)
-			// 	return err
-			// }
 		case 'q', 'Q':
 			fmt.Println()
 			fmt.Println("Aborting rebase...")
 			abortCmd := exec.Command("git", "rebase", "--abort")
 			abortOutput, err := abortCmd.CombinedOutput()
 			if err != nil {
-				panic(err)
-			}
-			defer term.Restore(int(os.Stdin.Fd()), oldState)
-
-			var input []byte = make([]byte, 1)
-			_, err = os.Stdin.Read(input)
-			if err != nil {
-				panic(err)
-			}
-
-			switch input[0] {
-			case '\r', '\n': // Enter key
-				fmt.Println("Continuing rebase...")
-				// continueOutput, err := continueCmd.CombinedOutput()
-				// 	fmt.Printf("Failed to continue rebase: %v\nOutput: %s\n", err, continueOutput)
-				// }
-				break
-			case 'q', 'Q':
-				fmt.Println()
-				fmt.Println("Aborting rebase...")
-				abortCmd := exec.Command("git", "rebase", "--abort")
-				abortOutput, err := abortCmd.CombinedOutput()
-				if err != nil {
-					return fmt.Errorf("failed to abort rebase: %w", err)
-				}
-				fmt.Printf("Rebase abort output: %s\n", abortOutput)
-				return nil
-			default:
-				fmt.Print("Invalid input. Please press Enter or q: ")
+				return fmt.Errorf("failed to abort rebase: %w", err)
 			}
 			fmt.Printf("Rebase abort output: %s\n", abortOutput)
 			return nil
