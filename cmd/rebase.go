@@ -2,10 +2,12 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 
 	"github.com/spf13/cobra"
+	"golang.org/x/term"
 )
 
 var rebaseCmd = &cobra.Command{
@@ -41,11 +43,10 @@ func rebase(cmd *cobra.Command, args []string) error {
 		fmt.Printf("There are no new changes on %s branch\n", branch)
 		return nil
 	}
-	fmt.Printf("Changes found on %s:\n%s\n", branch, string(logOutput))
 
 	// 3. Perform the rebase (if changes exist)
 	fmt.Printf("Starting rebase onto %s...\n", branch)
-	rebaseCmd := exec.Command("git", "rebase", branch)
+	rebaseCmd := exec.Command("git", "rebase", "--interactive", branch)
 	rebaseOutput, err := rebaseCmd.CombinedOutput()
 	if err != nil {
 		fmt.Printf("Rebase failed:\n%s\n", string(rebaseOutput))
@@ -59,9 +60,47 @@ func rebase(cmd *cobra.Command, args []string) error {
 
 		if len(conflictFiles) > 0 {
 			fmt.Printf("Conflicts found in the following files:\n%s\n", string(conflictFiles))
-			return fmt.Errorf("rebase failed due to conflicts")
+			for {
+				fmt.Print("Please resolve your conflicts. Press enter to continue or q to abort process: ")
+
+				oldState, err := term.MakeRaw(int(os.Stdin.Fd()))
+				if err != nil {
+					panic(err)
+				}
+				defer term.Restore(int(os.Stdin.Fd()), oldState)
+
+				var input []byte = make([]byte, 1)
+				_, err = os.Stdin.Read(input)
+				if err != nil {
+					panic(err)
+				}
+
+				switch input[0] {
+				case '\r', '\n': // Enter key
+					fmt.Println("Continuing rebase...")
+					continueCmd := exec.Command("git", "rebase", "--continue")
+					continueOutput, err := continueCmd.CombinedOutput()
+					if err != nil {
+						fmt.Printf("Failed to continue rebase: %v\nOutput: %s\n", err, continueOutput)
+						return err
+					}
+					fmt.Printf("Rebase continue output: %s\n", continueOutput)
+				case 'q', 'Q':
+					fmt.Println()
+					fmt.Println("Aborting rebase...")
+					abortCmd := exec.Command("git", "rebase", "--abort")
+					abortOutput, err := abortCmd.CombinedOutput()
+					if err != nil {
+						return fmt.Errorf("failed to abort rebase: %w", err)
+					}
+					fmt.Printf("Rebase abort output: %s\n", abortOutput)
+					return nil
+				default:
+					fmt.Print("Invalid input. Please press Enter or q: ")
+				}
+			}
 		} else {
-			return fmt.Errorf("rebase failed (unknown reason)") // Rebase failed, but no conflicts detected.
+			return fmt.Errorf("rebase failed (unknown reason)")
 		}
 
 	}
